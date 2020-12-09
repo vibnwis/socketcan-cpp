@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <socketcan_cpp/socketcan_cpp_export.h>
+//#include <socketcan_cpp/socketcan_cpp_export.h>
 
 #ifndef HAVE_SOCKETCAN_HEADERS
 #define CAN_MTU 0
@@ -44,6 +44,17 @@ namespace scpp
     class SocketCan
     {
     public:
+         SocketCan();
+         SocketCan(const SocketCan &) = delete;
+         SocketCan & operator=(const SocketCan &) = delete;
+         SocketCanStatus open(const std::string & can_interface, int32_t read_timeout_ms = 3, SocketMode mode = MODE_CAN_MTU);
+         SocketCanStatus write(const CanFrame & msg);
+         SocketCanStatus read(CanFrame & msg);
+         SocketCanStatus close();
+         const std::string & interfaceName() const;
+         ~SocketCan();
+        /*
+         *
         SOCKETCAN_CPP_EXPORT SocketCan();
         SOCKETCAN_CPP_EXPORT SocketCan(const SocketCan &) = delete;
         SOCKETCAN_CPP_EXPORT SocketCan & operator=(const SocketCan &) = delete;
@@ -53,6 +64,7 @@ namespace scpp
         SOCKETCAN_CPP_EXPORT SocketCanStatus close();
         SOCKETCAN_CPP_EXPORT const std::string & interfaceName() const;
         SOCKETCAN_CPP_EXPORT ~SocketCan();
+         */
     private:
         int m_socket = -1;
         int32_t m_read_timeout_ms = 3;

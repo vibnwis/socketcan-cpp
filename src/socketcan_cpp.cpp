@@ -57,7 +57,7 @@ namespace scpp
         m_interface = can_interface;
         m_socket_mode = mode;
         m_read_timeout_ms = read_timeout_ms;
-#ifdef HAVE_SOCKETCAN_HEADERS
+
 
         /* open socket */
         if ((m_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) 
@@ -119,23 +119,24 @@ namespace scpp
         //setsockopt(s, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
 
 // LINUX
+#if 0
         struct timeval tv;
         tv.tv_sec = 0;  /* 30 Secs Timeout */
         tv.tv_usec = m_read_timeout_ms * 1000;  // Not init'ing this can cause strange errors
         setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof(struct timeval));
-
+#endif
         if (bind(m_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
             perror("bind");
             return STATUS_BIND_ERROR;
         }
-#else
-        printf("Your operating system does not support socket can! \n");
-#endif
+
         return STATUS_OK;
     }
+    
+    
     SocketCanStatus SocketCan::write(const CanFrame & msg)
     {
-#ifdef HAVE_SOCKETCAN_HEADERS
+
         struct canfd_frame frame;
         memset(&frame, 0, sizeof(frame)); /* init CAN FD frame, e.g. LEN = 0 */
         //convert CanFrame to canfd_frame
@@ -154,14 +155,13 @@ namespace scpp
             perror("write");
             return STATUS_WRITE_ERROR;
         }
-#else
-        printf("Your operating system does not support socket can! \n");
-#endif
+
         return STATUS_OK;
     }
+    
     SocketCanStatus SocketCan::read(CanFrame & msg)
     {
-#ifdef HAVE_SOCKETCAN_HEADERS
+
         struct canfd_frame frame;
 
         // Read in a CAN frame
@@ -176,16 +176,14 @@ namespace scpp
         msg.len = frame.len;
         msg.flags = frame.flags;
         memcpy(msg.data, frame.data, frame.len);
-#else
-        printf("Your operating system does not support socket can! \n");
-#endif
+
         return STATUS_OK;
     }
     SocketCanStatus SocketCan::close()
     {
-#ifdef HAVE_SOCKETCAN_HEADERS
+
         ::close(m_socket);
-#endif
+
         return STATUS_OK;
     }
     const std::string & SocketCan::interfaceName() const
